@@ -1,322 +1,106 @@
+@extends('index')
+
+@push('styles')
+    <link href="{{ asset('assets/css/dashboard.css') }}" rel="stylesheet">
+@endpush
+
 @section('content')
-    <div class="container-fluid">
+    <div class="container-fluid tea-dashboard">
+        <header class="dashboard-heading">
+            <div>
+                <h1>Dashboard</h1>
+                <p>Welcome back! Here's what's happening at your tea shop today.</p>
+            </div>
+            <span class="sample-label"><i class="far fa-calendar-alt" aria-hidden="true"></i> Sample overview</span>
+        </header>
 
-        <!-- Page Heading -->
-        <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                    class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+        <div class="summary-grid">
+            @foreach ([['Today’s Sales', '৳40,000', '12.5', 'mug-hot', 'blue'], ['Total Invoices', '215', '8.0', 'file-invoice', 'green'], ['Tea Cups Sold', '320', '10.3', 'coffee', 'gold'], ['Gross Profit', '৳28,500', '14.2', 'coins', 'purple']] as [$label, $value, $growth, $icon, $color])
+                <article class="summary-card {{ $color }}">
+                    <span class="summary-icon"><i class="fas fa-{{ $icon }}" aria-hidden="true"></i></span>
+                    <div><h2>{{ $label }}</h2><strong>{{ $value }}</strong><p><span>▲ +{{ $growth }}%</span> vs. yesterday</p></div>
+                </article>
+            @endforeach
         </div>
 
-        <!-- Content Row -->
-        <div class="row">
-
-            <!-- Earnings (Monthly) Card Example -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-primary shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                    Earnings (Monthly)</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">$40,000</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
+        <div class="charts-grid">
+            <section class="dashboard-panel">
+                <div class="panel-heading">
+                    <h2><i class="fas fa-chart-bar" aria-hidden="true"></i> Sales Overview</h2>
+                    <div class="chart-tabs" role="group" aria-label="Sales chart period">
+                        <button type="button" data-period="weekly" aria-pressed="false">Weekly</button>
+                        <button type="button" data-period="monthly" aria-pressed="true" class="active">Monthly</button>
+                        <button type="button" data-period="yearly" aria-pressed="false">Yearly</button>
                     </div>
                 </div>
-            </div>
-
-            <!-- Earnings (Monthly) Card Example -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-success shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Earnings (Annual)</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">$215,000</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
-                    </div>
+                <div class="sales-chart" id="myAreaChart">
+                    <svg viewBox="0 0 650 220" role="img" aria-labelledby="sales-chart-title">
+                        <title id="sales-chart-title">Sample monthly sales, January to December</title>
+                        <defs><linearGradient id="sales-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2874ff" stop-opacity=".35"/><stop offset="100%" stop-color="#2874ff" stop-opacity=".05"/></linearGradient></defs>
+                        @foreach ([0, 1, 2, 3, 4, 5] as $line)
+                            <line x1="65" y1="{{ 20 + $line * 34 }}" x2="630" y2="{{ 20 + $line * 34 }}" stroke="#dce3f0" stroke-dasharray="2 2"/>
+                            <text x="53" y="{{ 24 + $line * 34 }}" text-anchor="end">৳{{ number_format(50000 - $line * 10000) }}</text>
+                        @endforeach
+                        <path id="sales-area" fill="url(#sales-fill)"/>
+                        <path id="sales-line" fill="none" stroke="#246bff" stroke-width="2.5" stroke-linejoin="round"/>
+                        <g id="sales-points"></g><g id="sales-labels"></g>
+                    </svg>
                 </div>
-            </div>
-
-            <!-- Earnings (Monthly) Card Example -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-info shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Tasks
-                                </div>
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col-auto">
-                                        <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">50%</div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="progress progress-sm mr-2">
-                                            <div class="progress-bar bg-info" role="progressbar" style="width: 50%"
-                                                aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
+            </section>
+            <section class="dashboard-panel">
+                <div class="panel-heading"><h2><i class="fas fa-chart-pie" aria-hidden="true"></i> Tea Category Sales</h2></div>
+                <div class="category-content">
+                    <div class="sales-donut" id="myPieChart" role="img" aria-label="Milk tea 60%, black tea 25%, lemon tea 15%">
+                        <div><strong>৳40,000</strong><span>Total Sales</span></div>
+                        <b class="donut-milk">60%</b><b class="donut-black">25%</b><b class="donut-lemon">15%</b>
                     </div>
+                    <ul class="category-legend">
+                        @foreach ([['Milk Tea', '24,000', 60, 'blue'], ['Black Tea', '10,000', 25, 'green'], ['Lemon Tea', '6,000', 15, 'gold']] as [$name, $amount, $percent, $color])
+                            <li><span class="legend-dot {{ $color }}"></span><div><strong>{{ $name }}</strong><span>৳{{ $amount }} ({{ $percent }}%)</span></div></li>
+                        @endforeach
+                    </ul>
                 </div>
-            </div>
-
-            <!-- Pending Requests Card Example -->
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-warning shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    Pending Requests</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-comments fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </section>
         </div>
 
-        <!-- Content Row -->
-
-        <div class="row">
-
-            <!-- Area Chart -->
-            <div class="col-xl-8 col-lg-7">
-                <div class="card shadow mb-4">
-                    <!-- Card Header - Dropdown -->
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Earnings Overview</h6>
-                        <div class="dropdown no-arrow">
-                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                aria-labelledby="dropdownMenuLink">
-                                <div class="dropdown-header">Dropdown Header:</div>
-                                <a class="dropdown-item" href="#">Action</a>
-                                <a class="dropdown-item" href="#">Another action</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">Something else here</a>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Card Body -->
-                    <div class="card-body">
-                        <div class="chart-area">
-                            <canvas id="myAreaChart"></canvas>
-                        </div>
-                    </div>
+        <div class="details-grid">
+            <section class="dashboard-panel">
+                <div class="panel-heading"><h2><i class="fas fa-trophy" aria-hidden="true"></i> Top Selling Tea</h2></div>
+                <div class="top-teas">
+                    @foreach ([['Milk Tea', 192, 60, 'blue', '🥤'], ['Black Tea', 80, 25, 'green', '☕'], ['Lemon Tea', 48, 15, 'gold', '🍋']] as [$name, $cups, $percent, $color, $illustration])
+                        <div class="tea-row"><span class="tea-illustration" aria-hidden="true">{{ $illustration }}</span><div class="tea-details"><div class="tea-title"><strong>{{ $name }}</strong><span>{{ $percent }}%</span></div><p>{{ $cups }} cups sold</p><div class="tea-progress" role="progressbar" aria-label="{{ $name }} sales share" aria-valuenow="{{ $percent }}" aria-valuemin="0" aria-valuemax="100"><span class="{{ $color }}" style="width: {{ $percent }}%"></span></div></div></div>
+                    @endforeach
                 </div>
-            </div>
-
-            <!-- Pie Chart -->
-            <div class="col-xl-4 col-lg-5">
-                <div class="card shadow mb-4">
-                    <!-- Card Header - Dropdown -->
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Revenue Sources</h6>
-                        <div class="dropdown no-arrow">
-                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                aria-labelledby="dropdownMenuLink">
-                                <div class="dropdown-header">Dropdown Header:</div>
-                                <a class="dropdown-item" href="#">Action</a>
-                                <a class="dropdown-item" href="#">Another action</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#">Something else here</a>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Card Body -->
-                    <div class="card-body">
-                        <div class="chart-pie pt-4 pb-2">
-                            <canvas id="myPieChart"></canvas>
-                        </div>
-                        <div class="mt-4 text-center small">
-                            <span class="mr-2">
-                                <i class="fas fa-circle text-primary"></i> Direct
-                            </span>
-                            <span class="mr-2">
-                                <i class="fas fa-circle text-success"></i> Social
-                            </span>
-                            <span class="mr-2">
-                                <i class="fas fa-circle text-info"></i> Referral
-                            </span>
-                        </div>
-                    </div>
+            </section>
+            <section class="dashboard-panel">
+                <div class="panel-heading"><h2><i class="fas fa-file-invoice" aria-hidden="true"></i> Recent Invoices</h2><span class="sample-label">Sample data</span></div>
+                <div class="invoice-table-wrap">
+                    <table class="invoice-table">
+                        <thead><tr><th scope="col">Invoice #</th><th scope="col">Customer Phone</th><th scope="col">Amount</th><th scope="col">Status</th></tr></thead>
+                        <tbody>
+                            @foreach ([['0245', '01712-345678', 250, 'Paid'], ['0244', '01823-456789', 150, 'Paid'], ['0243', '01911-223344', 400, 'Paid'], ['0242', '01755-667788', 300, 'Cancelled'], ['0241', '01670-998877', 200, 'Paid']] as [$invoice, $phone, $amount, $status])
+                                <tr><td class="invoice-number">INV-{{ $invoice }}</td><td>{{ $phone }}</td><td>৳{{ $amount }}</td><td><span class="invoice-status {{ $status === 'Paid' ? 'paid' : 'cancelled' }}">{{ $status }}</span></td></tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-            </div>
+            </section>
+            <section class="dashboard-panel">
+                <div class="panel-heading"><h2><i class="fas fa-bolt" aria-hidden="true"></i> Quick Actions</h2></div>
+                <div class="quick-actions">
+                    @foreach ([['New Sale', 'shopping-cart', 'pos.index', 'primary'], ['Add Product', 'cube', 'products.index', 'success'], ['View Reports', 'chart-bar', 'reports.index', ''], ['Customers', 'users', 'customers.index', '']] as [$label, $icon, $route, $style])
+                        @if (Illuminate\Support\Facades\Route::has($route))
+                            <a class="quick-action {{ $style }}" href="{{ route($route) }}"><i class="fas fa-{{ $icon }}" aria-hidden="true"></i>{{ $label }}</a>
+                        @else
+                            <button type="button" class="quick-action {{ $style }}" disabled title="Coming soon"><i class="fas fa-{{ $icon }}" aria-hidden="true"></i>{{ $label }}<small>Coming soon</small></button>
+                        @endif
+                    @endforeach
+                </div>
+            </section>
         </div>
-
-        <!-- Content Row -->
-        <div class="row">
-
-            <!-- Content Column -->
-            <div class="col-lg-6 mb-4">
-
-                <!-- Project Card Example -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Projects</h6>
-                    </div>
-                    <div class="card-body">
-                        <h4 class="small font-weight-bold">Server Migration <span class="float-right">20%</span></h4>
-                        <div class="progress mb-4">
-                            <div class="progress-bar bg-danger" role="progressbar" style="width: 20%" aria-valuenow="20"
-                                aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <h4 class="small font-weight-bold">Sales Tracking <span class="float-right">40%</span></h4>
-                        <div class="progress mb-4">
-                            <div class="progress-bar bg-warning" role="progressbar" style="width: 40%"
-                                aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <h4 class="small font-weight-bold">Customer Database <span class="float-right">60%</span></h4>
-                        <div class="progress mb-4">
-                            <div class="progress-bar" role="progressbar" style="width: 60%" aria-valuenow="60"
-                                aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <h4 class="small font-weight-bold">Payout Details <span class="float-right">80%</span></h4>
-                        <div class="progress mb-4">
-                            <div class="progress-bar bg-info" role="progressbar" style="width: 80%" aria-valuenow="80"
-                                aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <h4 class="small font-weight-bold">Account Setup <span class="float-right">Complete!</span></h4>
-                        <div class="progress">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: 100%"
-                                aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Color System -->
-                <div class="row">
-                    <div class="col-lg-6 mb-4">
-                        <div class="card bg-primary text-white shadow">
-                            <div class="card-body">
-                                Primary
-                                <div class="text-white-50 small">#4e73df</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 mb-4">
-                        <div class="card bg-success text-white shadow">
-                            <div class="card-body">
-                                Success
-                                <div class="text-white-50 small">#1cc88a</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 mb-4">
-                        <div class="card bg-info text-white shadow">
-                            <div class="card-body">
-                                Info
-                                <div class="text-white-50 small">#36b9cc</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 mb-4">
-                        <div class="card bg-warning text-white shadow">
-                            <div class="card-body">
-                                Warning
-                                <div class="text-white-50 small">#f6c23e</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 mb-4">
-                        <div class="card bg-danger text-white shadow">
-                            <div class="card-body">
-                                Danger
-                                <div class="text-white-50 small">#e74a3b</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 mb-4">
-                        <div class="card bg-secondary text-white shadow">
-                            <div class="card-body">
-                                Secondary
-                                <div class="text-white-50 small">#858796</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 mb-4">
-                        <div class="card bg-light text-black shadow">
-                            <div class="card-body">
-                                Light
-                                <div class="text-black-50 small">#f8f9fc</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 mb-4">
-                        <div class="card bg-dark text-white shadow">
-                            <div class="card-body">
-                                Dark
-                                <div class="text-white-50 small">#5a5c69</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="col-lg-6 mb-4">
-
-                <!-- Illustrations -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Illustrations</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="text-center">
-                            <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;"
-                                src="img/undraw_posting_photo.svg" alt="...">
-                        </div>
-                        <p>Add some quality, svg illustrations to your project courtesy of <a target="_blank"
-                                rel="nofollow" href="https://undraw.co/">unDraw</a>, a
-                            constantly updated collection of beautiful svg images that you can use
-                            completely free and without attribution!</p>
-                        <a target="_blank" rel="nofollow" href="https://undraw.co/">Browse Illustrations on
-                            unDraw &rarr;</a>
-                    </div>
-                </div>
-
-                <!-- Approach -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Development Approach</h6>
-                    </div>
-                    <div class="card-body">
-                        <p>SB Admin 2 makes extensive use of Bootstrap 4 utility classes in order to reduce
-                            CSS bloat and poor page performance. Custom CSS classes are used to create
-                            custom components and custom utility classes.</p>
-                        <p class="mb-0">Before working with this theme, you should become familiar with the
-                            Bootstrap framework, especially the utility classes.</p>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
     </div>
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('assets/js/dashboard.js') }}"></script>
+@endpush
