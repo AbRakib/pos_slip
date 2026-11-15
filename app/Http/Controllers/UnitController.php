@@ -8,14 +8,16 @@ use Illuminate\View\View;
 
 class UnitController extends Controller
 {
-    public function index(Request $request): View
+    public function index(): View
     {
-        if (! $request->ajax()) {
-            return view('unit.index');
-        }
+        return view('unit.index');
+    }
 
+    public function getData(Request $request): View
+    {
         $units = Unit::query()
             ->where('deleted', false)
+            ->where('name', 'like', "%{$request->input('search')}%")
             ->orderBy('name')
             ->get();
 

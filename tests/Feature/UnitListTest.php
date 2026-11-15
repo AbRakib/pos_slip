@@ -14,6 +14,7 @@ test('the unit page opens without querying units', function () {
         ->assertViewIs('unit.index')
         ->assertViewMissing('units')
         ->assertSee('Loading units...')
+        ->assertSee(route('units.filter'))
         ->assertDontSee('data-unit-row', false);
 
     expect(collect(DB::getQueryLog())->contains(fn (array $query): bool => str_contains(strtolower($query['query']), '"units"')))->toBeFalse();
@@ -24,7 +25,7 @@ test('ajax requests render the unit partial with non deleted units', function ()
     $unit = Unit::factory()->create(['name' => 'Kilogram']);
     Unit::factory()->create(['name' => 'Deleted Unit', 'deleted' => true]);
 
-    $this->get(route('units.index'), ['X-Requested-With' => 'XMLHttpRequest'])
+    $this->get(route('units.filter'), ['X-Requested-With' => 'XMLHttpRequest'])
         ->assertOk()
         ->assertViewIs('unit._index')
         ->assertSee($unit->name)
@@ -34,7 +35,7 @@ test('ajax requests render the unit partial with non deleted units', function ()
 });
 
 test('ajax requests render an empty unit list', function () {
-    $this->get(route('units.index'), ['X-Requested-With' => 'XMLHttpRequest'])
+    $this->get(route('units.filter'), ['X-Requested-With' => 'XMLHttpRequest'])
         ->assertOk()
         ->assertViewIs('unit._index')
         ->assertSee('No units found.')

@@ -9,3 +9,4 @@ Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
 Route::get('/units', [UnitController::class, 'index'])->name('units.index');
+Route::get('/units/filter', [UnitController::class, 'getData'])->name('units.filter');
